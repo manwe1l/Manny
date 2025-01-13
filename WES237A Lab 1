@@ -1,0 +1,60 @@
+
+import asyncio
+
+cond = True 
+
+async def flash_leds():
+
+    global cond
+    while True:
+        if cond:
+            led4.write(0x1)
+            led5.write(0x7)
+            await asyncio.sleep(0.1)
+            led4.write(0x0)
+            led5.write(0x0)
+            await asyncio.sleep(0.05)
+            led4.write(0x1)
+            led5.write(0x7)
+            await asyncio.sleep(0.1)
+            led4.write(0x0)
+            led5.write(0x0)
+            await asyncio.sleep(0.05)
+            led4.write(0x7)
+            led5.write(0x4)
+            await asyncio.sleep(0.1)
+            led4.write(0x0)
+            led5.write(0x0)
+            await asyncio.sleep(0.05)
+            led4.write(0x7)
+            led5.write(0x4)
+            await asyncio.sleep(0.1)
+            led4.write(0x0)
+            led5.write(0x0)
+            await asyncio.sleep(0.05)
+        else:
+            await asyncio.sleep(0.1)
+
+async def get_btns():
+
+    global cond
+    while True:
+        await asyncio.sleep(0.01)  
+        btn_state = btns.read()
+        if btn_state == 0x01:  
+            cond = True 
+        elif btn_state == 0x02: 
+            cond = False 
+
+
+loop = asyncio.new_event_loop()
+loop.create_task(flash_leds())
+loop.create_task(get_btns())
+loop.run_forever()
+loop.close()
+led4.write(0x0)
+led5.write(0x0)
+print("Done.")
+
+
+
