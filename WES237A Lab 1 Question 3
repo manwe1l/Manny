@@ -1,0 +1,42 @@
+
+from pynq.overlays.base import BaseOverlay
+import time
+from datetime import datetime
+base = BaseOverlay("base.bit")
+
+%%microblaze base.PMODB
+
+#include "gpio.h"
+#include "pyprintf.h"
+
+
+void send_2bits(unsigned int pin1, unsigned int pin2, unsigned int value) {
+    if (value > 3) {
+        pyprintf("Value must be in range 0 to 3");
+        return;
+    }
+
+    gpio pin_out1 = gpio_open(pin1);
+    gpio pin_out2 = gpio_open(pin2);
+
+    gpio_set_direction(pin_out1, GPIO_OUT);
+    gpio_set_direction(pin_out2, GPIO_OUT);
+
+    gpio_write(pin_out1, value & 1);       
+    gpio_write(pin_out2, (value >> 1) & 1); 
+}
+
+// Function to receive a 2-bit value using two GPIO pins
+unsigned int receive_2bits(unsigned int pin1, unsigned int pin2) {
+    gpio pin_in1 = gpio_open(pin1);
+    gpio pin_in2 = gpio_open(pin2);
+
+    gpio_set_direction(pin_in1, GPIO_IN);
+    gpio_set_direction(pin_in2, GPIO_IN);
+
+    unsigned int lsb = gpio_read(pin_in1); 
+    unsigned int msb = gpio_read(pin_in2);
+
+    return (msb << 1) | lsb;
+}
+
