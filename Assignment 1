@@ -43,22 +43,17 @@ on_time = period * duty_cycle
 off_time = period - on_time
 
 while True:
-    lib.write_gpio(3, 1)
+    write_gpio(3, 1)
     time.sleep(on_time)
-    lib.write_gpio(3, 0)
+    write_gpio(3, 0)
     time.sleep(off_time)
 
-    lib.write_gpio(4, 1)
+    write_gpio(4, 1)
     time.sleep(on_time)
-    lib.write_gpio(4, 0)
+    write_gpio(4, 0)
     time.sleep(off_time)
 
-    lib.write_gpio(5, 1)
+    write_gpio(5, 1)
     time.sleep(on_time)
-    lib.write_gpio(5, 0)
+    write_gpio(5, 0)
     time.sleep(off_time)
-
-# Example usage of write_gpio and read_gpio
-val = 1
-lib.write_gpio(0, val)  # Write to GPIO pin 0
-read_value = lib.read_gpio(1)  # Read from GPIO pin 1
