@@ -1,0 +1,64 @@
+from pynq.overlays.base import BaseOverlay
+from pynq.lib import MicroblazeLibrary
+import time
+
+base = BaseOverlay("base.bit")
+lib = MicroblazeLibrary(base.PMODB, ['gpio'])
+
+%%microblaze base.PMODB
+
+#include "gpio.h"
+#include "pyprintf.h"
+
+// Function to turn on/off a selected pin of PMODB
+void write_gpio(unsigned int pin, unsigned int val){
+    if (val > 1){
+        pyprintf("pin value must be 0 or 1");
+    }
+    gpio pin_out = gpio_open(pin);
+    gpio_set_direction(pin_out, GPIO_OUT);
+    gpio_write(pin_out, val);
+}
+
+// Function to read the value of a selected pin of PMODB
+unsigned int read_gpio(unsigned int pin){
+    gpio pin_in = gpio_open(pin);
+    gpio_set_direction(pin_in, GPIO_IN);
+    return gpio_read(pin_in);
+}
+
+// Function to reset all GPIO pins on the chosen PMOD
+void reset_gpio(){
+    for (unsigned int pin = 0; pin < 8; pin++){
+        gpio pin_out = gpio_open(pin);
+        gpio_set_direction(pin_out, GPIO_OUT);
+        gpio_write(pin_out, 0);
+    }
+}
+
+frequency = 1000
+duty_cycle = 0.5
+period = 1.0 / frequency
+on_time = period * duty_cycle
+off_time = period - on_time
+
+while True:
+    lib.write_gpio(3, 1)
+    time.sleep(on_time)
+    lib.write_gpio(3, 0)
+    time.sleep(off_time)
+
+    lib.write_gpio(4, 1)
+    time.sleep(on_time)
+    lib.write_gpio(4, 0)
+    time.sleep(off_time)
+
+    lib.write_gpio(5, 1)
+    time.sleep(on_time)
+    lib.write_gpio(5, 0)
+    time.sleep(off_time)
+
+# Example usage of write_gpio and read_gpio
+val = 1
+lib.write_gpio(0, val)  # Write to GPIO pin 0
+read_value = lib.read_gpio(1)  # Read from GPIO pin 1
