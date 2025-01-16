@@ -43,17 +43,18 @@ on_time = period * duty_cycle
 off_time = period - on_time
 
 while True:
-    write_gpio(3, 1)
+    lib.write_gpio(3, 1)
     time.sleep(on_time)
-    write_gpio(3, 0)
+    lib.write_gpio(3, 0)
     time.sleep(off_time)
 
-    write_gpio(4, 1)
+    lib.write_gpio(4, 1)
     time.sleep(on_time)
-    write_gpio(4, 0)
+    lib.write_gpio(4, 0)
     time.sleep(off_time)
 
-    write_gpio(5, 1)
+    lib.write_gpio(5, 1)
     time.sleep(on_time)
-    write_gpio(5, 0)
+    lib.write_gpio(5, 0)
     time.sleep(off_time)
+
