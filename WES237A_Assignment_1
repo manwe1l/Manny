@@ -14,20 +14,135 @@ void write_gpio(unsigned int pin, unsigned int val) {
         pyprintf("Error: GPIO value must be 0 or 1.\n");
         return;
     }
-    gpio pin_out = gpio_open(pin);               // Open the GPIO pin
-    gpio_set_direction(pin_out, GPIO_OUT);       // Set direction as output
-    gpio_write(pin_out, val);                    // Write the specified value
+    gpio pin_out = gpio_open(pin);               
+    gpio_set_direction(pin_out, GPIO_OUT);       
+    gpio_write(pin_out, val);                    
 }
 
 // Function to reset all GPIO pins (set all outputs to LOW)
 void reset_gpio() {
-    for (unsigned int pin = 0; pin < 7; pin++) { // PMODB typically has 6 pins
-        gpio pin_out = gpio_open(pin);           // Open the GPIO pin
-        gpio_set_direction(pin_out, GPIO_OUT);  // Set direction as output
-        gpio_write(pin_out, 0);                 // Set value to LOW (0)
+    for (unsigned int pin = 0; pin < 7; pin++) { 
+        gpio pin_out = gpio_open(pin);           
+        gpio_set_direction(pin_out, GPIO_OUT); 
+        gpio_write(pin_out, 0);                 
     }
 }
 
+
+import asyncio
+reset_gpio() #reset all pins 
+frequency = 10
+duty_cycle = 75
+period = 1.0 / frequency
+on_time = period * (duty_cycle/100)
+off_time = period - on_time
+
+btns = base.btns_gpio
+
+while True:
+    write_gpio(3, 1)
+    await asyncio.sleep(on_time)
+    write_gpio(3, 0)
+    await asyncio.sleep(off_time)
+    if btns.read() != 0:
+        write_gpio(0, 0)
+        break
+
+  import asyncio
+reset_gpio() #reset all pins 
+frequency = 45
+duty_cycle = 100
+period = 1.0 / frequency
+on_time = period * (duty_cycle/100)
+off_time = period - on_time
+
+btns = base.btns_gpio
+
+while True:
+    write_gpio(3, 1)
+    await asyncio.sleep(on_time)
+    write_gpio(3, 0)
+    await asyncio.sleep(off_time)
+    if btns.read() != 0:
+        write_gpio(0, 0)
+        break  
+
+
+import asyncio
+reset_gpio() #reset all pins 
+frequency = 30
+duty_cycle = 25
+period = 1.0 / frequency
+on_time = period * (duty_cycle/100)
+off_time = period - on_time
+
+btns = base.btns_gpio
+
+while True:
+    write_gpio(3, 1)
+    await asyncio.sleep(on_time)
+    write_gpio(3, 0)
+    await asyncio.sleep(off_time)
+    if btns.read() != 0:
+        write_gpio(0, 0)
+        break
+
+import asyncio
+reset_gpio() #reset all pins 
+frequency = 30
+duty_cycle = 50
+period = 1.0 / frequency
+on_time = period * (duty_cycle/100)
+off_time = period - on_time
+
+btns = base.btns_gpio
+
+while True:
+    write_gpio(3, 1)
+    await asyncio.sleep(on_time)
+    write_gpio(3, 0)
+    await asyncio.sleep(off_time)
+    if btns.read() != 0:
+        write_gpio(0, 0)
+        break
+
+import asyncio
+reset_gpio() #reset all pins 
+frequency = 30
+duty_cycle = 75
+period = 1.0 / frequency
+on_time = period * (duty_cycle/100)
+off_time = period - on_time
+
+btns = base.btns_gpio
+
+while True:
+    write_gpio(3, 1)
+    await asyncio.sleep(on_time)
+    write_gpio(3, 0)
+    await asyncio.sleep(off_time)
+    if btns.read() != 0:
+        write_gpio(0, 0)
+        break
+
+import asyncio
+reset_gpio() #reset all pins 
+frequency = 30
+duty_cycle = 100
+period = 1.0 / frequency
+on_time = period * (duty_cycle/100)
+off_time = period - on_time
+
+btns = base.btns_gpio
+
+while True:
+    write_gpio(3, 1)
+    await asyncio.sleep(on_time)
+    write_gpio(3, 0)
+    await asyncio.sleep(off_time)
+    if btns.read() != 0:
+        write_gpio(0, 0)
+        break
 
 import asyncio
 
@@ -38,34 +153,40 @@ current_color = None
 
 async def flash_leds():
     global cond, current_color
+    duty_cycle = 0.25
+    frequency = 30
+    period = 1 / frequency
+    time_on = duty_cycle * period
+    time_off = period - time_on
+    
     while cond:
         print("Start of While Loop")
         if current_color == "red":
             write_gpio(3, 1)
-            await asyncio.sleep(1)  # Shorter sleep time for blinking effect
+            await asyncio.sleep(time_on)
             write_gpio(3, 0)
-            await asyncio.sleep(1)
+            await asyncio.sleep(time_off)
         elif current_color == "green":
             write_gpio(4, 1)
             print("Green LED on pin 4")
-            await asyncio.sleep(1)  # Shorter sleep time for blinking effect
+            await asyncio.sleep(time_on)
             write_gpio(4, 0)
-            await asyncio.sleep(1)
+            await asyncio.sleep(time_off)
         elif current_color == "blue":
             write_gpio(5, 1)
             print("Blue LED on pin 9")
-            await asyncio.sleep(1)  # Shorter sleep time for blinking effect
+            await asyncio.sleep(time_on)
             write_gpio(5, 0)
-            await asyncio.sleep(1)
+            await asyncio.sleep(time_off)
         else:
             # Turn off all LEDs
             write_gpio(3, 0)
             write_gpio(4, 0)
             write_gpio(5, 0)
             print("LEDs off")
-
+        
         # Adding a short delay to allow other button press checks
-        await asyncio.sleep(0.1)  
+        await asyncio.sleep(0.1)
 
 async def get_btns(_loop):
     global cond, current_color
@@ -88,6 +209,3 @@ loop = asyncio.new_event_loop()
 loop.create_task(flash_leds())
 loop.create_task(get_btns(loop))
 loop.run_forever()
-
-
-
