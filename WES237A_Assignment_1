@@ -1,0 +1,93 @@
+from pynq.overlays.base import BaseOverlay
+import time
+
+base = BaseOverlay("base.bit")
+
+%%microblaze base.PMODA
+
+#include "gpio.h"
+#include "pyprintf.h"
+
+
+void write_gpio(unsigned int pin, unsigned int val) {
+    if (val > 1) {
+        pyprintf("Error: GPIO value must be 0 or 1.\n");
+        return;
+    }
+    gpio pin_out = gpio_open(pin);               // Open the GPIO pin
+    gpio_set_direction(pin_out, GPIO_OUT);       // Set direction as output
+    gpio_write(pin_out, val);                    // Write the specified value
+}
+
+// Function to reset all GPIO pins (set all outputs to LOW)
+void reset_gpio() {
+    for (unsigned int pin = 0; pin < 7; pin++) { // PMODB typically has 6 pins
+        gpio pin_out = gpio_open(pin);           // Open the GPIO pin
+        gpio_set_direction(pin_out, GPIO_OUT);  // Set direction as output
+        gpio_write(pin_out, 0);                 // Set value to LOW (0)
+    }
+}
+
+
+import asyncio
+
+reset_gpio()
+btns = base.btns_gpio
+cond = True
+current_color = None
+
+async def flash_leds():
+    global cond, current_color
+    while cond:
+        print("Start of While Loop")
+        if current_color == "red":
+            write_gpio(3, 1)
+            await asyncio.sleep(1)  # Shorter sleep time for blinking effect
+            write_gpio(3, 0)
+            await asyncio.sleep(1)
+        elif current_color == "green":
+            write_gpio(4, 1)
+            print("Green LED on pin 4")
+            await asyncio.sleep(1)  # Shorter sleep time for blinking effect
+            write_gpio(4, 0)
+            await asyncio.sleep(1)
+        elif current_color == "blue":
+            write_gpio(5, 1)
+            print("Blue LED on pin 9")
+            await asyncio.sleep(1)  # Shorter sleep time for blinking effect
+            write_gpio(5, 0)
+            await asyncio.sleep(1)
+        else:
+            # Turn off all LEDs
+            write_gpio(3, 0)
+            write_gpio(4, 0)
+            write_gpio(5, 0)
+            print("LEDs off")
+
+        # Adding a short delay to allow other button press checks
+        await asyncio.sleep(0.1)  
+
+async def get_btns(_loop):
+    global cond, current_color
+    while cond:
+        await asyncio.sleep(0.01)
+        if btns[0].read() != 0:
+            current_color = "red"
+            print("Changed to red LED on pin 3")
+        elif btns[1].read() != 0:
+            current_color = "green"
+            print("Changed to green LED on pin 4")
+        elif btns[2].read() != 0:
+            current_color = "blue"
+            print("Changed to blue LED on pin 9")
+        elif btns[3].read() != 0:
+            current_color = None
+            print("Turned off all LEDs")
+
+loop = asyncio.new_event_loop()
+loop.create_task(flash_leds())
+loop.create_task(get_btns(loop))
+loop.run_forever()
+
+
+
